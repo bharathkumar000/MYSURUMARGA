@@ -710,33 +710,15 @@ export const FeedbackSection = ({ userEmail, onSuccess }) => {
 export const Hero = ({ onExploreClick }) => {
     return (
         <div className="px-8 pt-6 pb-4 space-y-6 md:px-12 md:pt-10 md:pb-8 flex flex-col items-center">
-            {/* Centered Logo in Hero Area */}
-            <div className="flex flex-col items-center gap-2 mb-2 animate-in fade-in slide-in-from-top-4 duration-1000">
+            {/* Logo + Title Side by Side */}
+            <div className="flex items-center gap-3 mb-2 animate-in fade-in slide-in-from-top-4 duration-1000">
                 <img src="/src/assets/logo-circle-removebg.png" alt="Logo" className="w-12 h-12 md:w-16 md:h-16 object-contain" />
                 <h1 className="text-2xl md:text-3xl font-black text-gray-900 dark:text-white tracking-tight flex items-center gap-2">
                     Mysuru <span className="text-mysore-600">Marga</span>
                 </h1>
             </div>
 
-            {/* Modern Search Bar */}
-            <div className="relative group z-30 md:max-w-2xl md:mx-auto transform hover:-translate-y-1 transition-transform duration-300">
-                <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                    <Search className="h-5 w-5 text-gray-400 group-focus-within:text-[#D4AF37] transition-colors" />
-                </div>
-                <input
-                    type="text"
-                    id="search-input"
-                    name="search"
-                    className="block w-full pl-14 pr-32 py-5 border-none rounded-[2rem] leading-5 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-[#D4AF37]/10 shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.4)] transition-all font-medium text-sm md:text-base"
-                    placeholder="Search for hidden gems, culture, food..."
-                    autoComplete="off"
-                />
-                <div className="absolute inset-y-2 right-2 flex items-center">
-                    <button className="px-5 py-2.5 bg-black dark:bg-[#D4AF37] rounded-[1.5rem] text-white dark:text-black font-bold text-xs uppercase tracking-wider hover:scale-105 active:scale-95 transition-all shadow-lg shadow-black/20 dark:shadow-[#D4AF37]/20">
-                        Filter
-                    </button>
-                </div>
-            </div>
+
 
             {/* Immersive Hero Card */}
             <div
@@ -880,7 +862,14 @@ export const MapComponent = ({ places, destination, interactive = true }) => {
     const [selectedCab, setSelectedCab] = useState(null);
     const [showSuggestions, setShowSuggestions] = useState(false);
 
-    const categories = ['All', 'Nature', 'Heritage', 'Food', 'Artisan', 'Stay'];
+    const categories = [
+        { name: 'All', emoji: '📍' },
+        { name: 'Nature', emoji: '🌲' },
+        { name: 'Heritage', emoji: '🏛️' },
+        { name: 'Food', emoji: '🍴' },
+        { name: 'Artisan', emoji: '🎨' },
+        { name: 'Stay', emoji: '🏨' },
+    ];
 
     // Custom Marker Icons for Categories
     const getMarkerIcon = (category) => {
@@ -933,10 +922,10 @@ export const MapComponent = ({ places, destination, interactive = true }) => {
     };
 
     const cabOptions = [
-        { id: 'bike', type: 'Bike / Two-Wheeler', price: '?42', time: '2 min', icon: '', description: 'Fastest in traffic' },
-        { id: 'auto', type: 'Auto Rickshaw', price: '?68', time: '3 min', icon: '', description: 'Affordable for 3' },
-        { id: 'mini', type: 'Cab Mini', price: '?142', time: '5 min', icon: '', description: 'Compact AC cars' },
-        { id: 'prime', type: 'Cab Prime', price: '?198', time: '6 min', icon: '', description: 'Premium sedans' },
+        { id: 'bike', type: 'Bike / Two-Wheeler', price: '₹42', time: '2 min', icon: '', description: 'Fastest in traffic' },
+        { id: 'auto', type: 'Auto Rickshaw', price: '₹68', time: '3 min', icon: '', description: 'Affordable for 3' },
+        { id: 'mini', type: 'Cab Mini', price: '₹142', time: '5 min', icon: '', description: 'Compact AC cars' },
+        { id: 'prime', type: 'Cab Prime', price: '₹198', time: '6 min', icon: '', description: 'Premium sedans' },
     ];
 
     const handleBookNow = (cab) => {
@@ -951,6 +940,13 @@ export const MapComponent = ({ places, destination, interactive = true }) => {
             setBookingStage('select');
         }, 3000);
     };
+
+    const filteredPlaces = (places || []).filter(place => {
+        const matchesCategory = selectedCategory === 'All' || place.category === selectedCategory;
+        const matchesSearch = place.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            place.location.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesCategory && matchesSearch;
+    });
 
     const center = activePlace?.coords || defaultCenter;
     const zoom = activePlace ? 16 : 13;
@@ -1022,14 +1018,15 @@ export const MapComponent = ({ places, destination, interactive = true }) => {
                         <div className="flex gap-2 overflow-x-auto pb-2 no-scrollbar">
                             {categories.map(cat => (
                                 <button
-                                    key={cat}
-                                    onClick={() => setSelectedCategory(cat)}
-                                    className={`px-5 py-2 rounded-full text-xs font-bold whitespace-nowrap border transition-all ${selectedCategory === cat
+                                    key={cat.name}
+                                    onClick={() => setSelectedCategory(cat.name)}
+                                    className={`px-4 py-2 rounded-full text-xs font-bold whitespace-nowrap border transition-all flex items-center gap-1.5 ${selectedCategory === cat.name
                                         ? 'bg-mysore-gold border-mysore-gold text-white shadow-lg shadow-mysore-gold/30'
                                         : 'bg-white border-white shadow-md text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300'
                                         }`}
                                 >
-                                    {cat}
+                                    <span>{cat.emoji}</span>
+                                    <span>{cat.name}</span>
                                 </button>
                             ))}
                         </div>
@@ -1069,7 +1066,7 @@ export const MapComponent = ({ places, destination, interactive = true }) => {
                                         <div className="flex items-center gap-1 text-[10px] text-gray-500 mt-1">
                                             <Star size={10} className="text-yellow-500 fill-current" />
                                             <span>{place.rating}</span>
-                                            <span>?€¢</span>
+                                            <span>•</span>
                                             <span>{place.category}</span>
                                         </div>
                                     </div>
@@ -1126,7 +1123,7 @@ export const MapComponent = ({ places, destination, interactive = true }) => {
                                                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Estimate</span>
                                                 <div className="flex items-center gap-1 mt-1">
                                                     <Car size={14} className="text-mysore-gold" />
-                                                    <span className="font-bold text-base">?‚¹142</span>
+                                                    <span className="font-bold text-base">₹142</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -3784,7 +3781,7 @@ Greetings! As your local companion, I've curated a ${days}-day plan for your par
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Deep Dive (Select Multiple)</label>
                     <div className="flex gap-3 flex-wrap">
                         {["Heritage", "Nature", "Food", "Spiritual", "Arts", "Shopping", "Silk Weaving", "Yoga", "Palaces"].map(i => (
-                            <button key={i} onClick={() => toggleInterest(i)} className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.interests.includes(i) ? 'bg-[#D4AF37] text-white border-[#D4AF37] shadow-lg shadow-amber-900/10' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37]'}`}>
+                            <button key={i} onClick={() => toggleInterest(i)} className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.interests.includes(i) ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-lg shadow-[#D4AF37]/20 scale-105' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37]'}`}>
                                 {i}
                             </button>
                         ))}
@@ -3819,7 +3816,7 @@ Greetings! As your local companion, I've curated a ${days}-day plan for your par
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Exploration Pace</label>
                     <div className="flex gap-4">
                         {["Relaxed", "Balanced", "Intense"].map(p => (
-                            <button key={p} onClick={() => setFormData({ ...formData, pace: p })} className={`flex-1 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.pace === p ? 'bg-black dark:bg-[#D4AF37] text-white dark:text-black border-black dark:border-[#D4AF37] shadow-xl' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-black dark:hover:border-[#D4AF37]'}`}>
+                            <button key={p} onClick={() => setFormData({ ...formData, pace: p })} className={`flex-1 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.pace === p ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-xl scale-105' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37]'}`}>
                                 {p}
                             </button>
                         ))}
@@ -3860,7 +3857,7 @@ Greetings! As your local companion, I've curated a ${days}-day plan for your par
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Investment Level</label>
                     <div className="flex gap-4">
                         {["Budget", "Moderate", "Luxury"].map(b => (
-                            <button key={b} onClick={() => setFormData({ ...formData, budget: b })} className={`flex-1 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.budget === b ? 'bg-black dark:bg-[#D4AF37] text-white dark:text-black border-black dark:border-[#D4AF37] shadow-xl' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-black dark:hover:border-[#D4AF37]'}`}>
+                            <button key={b} onClick={() => setFormData({ ...formData, budget: b })} className={`flex-1 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.budget === b ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-xl scale-105' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37]'}`}>
                                 {b}
                             </button>
                         ))}
@@ -3871,7 +3868,7 @@ Greetings! As your local companion, I've curated a ${days}-day plan for your par
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Stay Preference</label>
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         {["Hostel", "Homestay", "Comfort", "Grandeur"].map(a => (
-                            <button key={a} onClick={() => setFormData({ ...formData, accommodation: a })} className={`py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.accommodation === a ? 'bg-black dark:bg-[#D4AF37] text-white dark:text-black border-black dark:border-[#D4AF37] shadow-lg' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-black dark:hover:border-[#D4AF37]'}`}>
+                            <button key={a} onClick={() => setFormData({ ...formData, accommodation: a })} className={`py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.accommodation === a ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-lg scale-105' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37]'}`}>
                                 {a}
                             </button>
                         ))}
@@ -3895,7 +3892,7 @@ Greetings! As your local companion, I've curated a ${days}-day plan for your par
                     <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Culinary Path</label>
                     <div className="flex gap-3 flex-wrap">
                         {["ANYTHING", "VEGETARIAN", "NON-VEG", "VEGAN", "JAIN"].map(d => (
-                            <button key={d} onClick={() => setFormData({ ...formData, diet: d })} className={`flex-1 py-4 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.diet === d ? 'bg-black dark:bg-[#D4AF37] text-white dark:text-black border-black dark:border-[#D4AF37] shadow-md' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-black dark:hover:border-[#D4AF37]'}`}>
+                            <button key={d} onClick={() => setFormData({ ...formData, diet: d })} className={`flex-1 py-4 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.diet === d ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-md scale-105' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37]'}`}>
                                 {d}
                             </button>
                         ))}
@@ -3907,7 +3904,7 @@ Greetings! As your local companion, I've curated a ${days}-day plan for your par
                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Transit Mode</label>
                         <div className="flex gap-4">
                             {["Personal", "Rickshaw/Public"].map(t => (
-                                <button key={t} onClick={() => setFormData({ ...formData, transport: t })} className={`flex-1 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.transport === t ? 'bg-black dark:bg-[#D4AF37] text-white dark:text-black border-black dark:border-[#D4AF37] shadow-md' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-black dark:hover:border-[#D4AF37]'}`}>
+                                <button key={t} onClick={() => setFormData({ ...formData, transport: t })} className={`flex-1 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.transport === t ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-md scale-105' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37]'}`}>
                                     {t}
                                 </button>
                             ))}
@@ -3917,7 +3914,7 @@ Greetings! As your local companion, I've curated a ${days}-day plan for your par
                         <label className="text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2">Vehicle Preference</label>
                         <div className="flex gap-4">
                             {["Two Wheeler", "Four Wheeler"].map(v => (
-                                <button key={v} onClick={() => setFormData({ ...formData, vehicleType: v })} className={`flex-1 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.vehicleType === v ? 'bg-black dark:bg-[#D4AF37] text-white dark:text-black border-black dark:border-[#D4AF37] shadow-md' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-black dark:hover:border-[#D4AF37]'}`}>
+                                <button key={v} onClick={() => setFormData({ ...formData, vehicleType: v })} className={`flex-1 py-5 rounded-3xl text-[10px] font-black uppercase tracking-widest transition-all border transform active:scale-95 ${formData.vehicleType === v ? 'bg-[#D4AF37] text-black border-[#D4AF37] shadow-md scale-105' : 'bg-white dark:bg-gray-800 text-gray-400 border-gray-100 dark:border-gray-700 hover:border-[#D4AF37] hover:text-[#D4AF37]'}`}>
                                     {v}
                                 </button>
                             ))}
@@ -6004,56 +6001,7 @@ function App() {
         }
     }, [historyIndex, tabHistory]);
 
-    // Global listeners for 2-finger swipe behavior
-    React.useEffect(() => {
-        let touchStartX = 0;
-        let lastWheelX = 0;
-        let wheelTimer = null;
-
-        const onWheel = (e) => {
-            if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 30) {
-                lastWheelX += e.deltaX;
-                if (wheelTimer) clearTimeout(wheelTimer);
-                wheelTimer = setTimeout(() => {
-                    if (lastWheelX > 150) { handleForward(); lastWheelX = 0; }
-                    else if (lastWheelX < -150) { handleBack(); lastWheelX = 0; }
-                }, 100);
-            }
-        };
-
-        const onTouchStart = (e) => {
-            if (e.touches.length === 2) {
-                touchStartX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
-            }
-        };
-
-        const onTouchEnd = (e) => {
-            if (touchStartX === 0) return;
-            const touchEndX = e.changedTouches.length >= 2
-                ? (e.changedTouches[0].clientX + e.changedTouches[1].clientX) / 2
-                : e.changedTouches[0].clientX;
-            const deltaX = touchEndX - touchStartX;
-            if (Math.abs(deltaX) > 80) { // Threshold for swipe
-                if (deltaX > 0) {
-                    // Swipe right -> Back
-                    handleBack();
-                } else {
-                    // Swipe left -> Forward
-                    handleForward();
-                }
-            }
-            touchStartX = 0;
-        };
-
-        window.addEventListener('wheel', onWheel, { passive: true });
-        window.addEventListener('touchstart', onTouchStart, { passive: true });
-        window.addEventListener('touchend', onTouchEnd, { passive: true });
-        return () => {
-            window.removeEventListener('wheel', onWheel);
-            window.removeEventListener('touchstart', onTouchStart);
-            window.removeEventListener('touchend', onTouchEnd);
-        };
-    }, [handleBack, handleForward]);
+    // Two-finger swipe navigation handles removed due to scrolling glitches
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [selectedPlace, setSelectedPlace] = useState(null);
     const [mapDestination, setMapDestination] = useState(null);
